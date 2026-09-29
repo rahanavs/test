@@ -1,0 +1,59 @@
+{
+  "skill": "test-design-review",
+  "description": "Regression prompts for the test-design-review skill (read-only review of a unit test design CSV).",
+  "evals": [
+    {
+      "id": "eval-001",
+      "prompt": "review docs/ut-design/unit-test-design.csv against the requirements",
+      "context": ["docs/requirements.md", "docs/ut-design/unit-test-design.csv"],
+      "expected_behavior": [
+        "Runs fix_csv.py --check-only first and reports schema issues separately from content findings.",
+        "Builds a requirement -> covering test case ids traceability map covering every FR.",
+        "Groups quality findings by severity (blocker/major/minor/nit).",
+        "Ends with a report; does not modify the CSV."
+      ],
+      "should_not": [
+        "Edit docs/ut-design/unit-test-design.csv.",
+        "Invent a requirement that isn't in docs/requirements.md."
+      ]
+    },
+    {
+      "id": "eval-002",
+      "prompt": "review the test design and then fix whatever you find",
+      "expected_behavior": [
+        "Completes the read-only review and reports findings first.",
+        "Only applies fixes after the review output, and treats that as a distinct follow-up step rather than silently editing during the review."
+      ],
+      "should_not": [
+        "Skip straight to editing the CSV without first producing the findings report."
+      ]
+    },
+    {
+      "id": "eval-003",
+      "prompt": "is this test design ready to hand off for automation?",
+      "context": ["docs/ut-design/unit-test-design.csv"],
+      "expected_behavior": [
+        "Gives an explicit verdict (ready / needs work / blocked).",
+        "Distinguishes issues caused by the design itself from issues caused by ambiguous/incomplete source requirements (e.g. undefined FR5 thresholds)."
+      ]
+    },
+    {
+      "id": "eval-004",
+      "prompt": "review the test design CSV",
+      "context": ["a deliberately malformed CSV with a ragged row and a duplicate testcase id"],
+      "expected_behavior": [
+        "Surfaces the schema-level issues (ragged row, duplicate id) from the validator output.",
+        "Still attempts the semantic traceability review for the remaining well-formed rows rather than aborting entirely."
+      ]
+    },
+    {
+      "id": "eval-005",
+      "prompt": "check test coverage for FR5",
+      "context": ["docs/requirements.md", "docs/ut-design/unit-test-design.csv"],
+      "expected_behavior": [
+        "Notes that FR5's thresholds are undefined in the requirements and that this blocks a definitive 'complete coverage' verdict.",
+        "Does not claim FR5 is fully covered just because TBD placeholder cases exist."
+      ]
+    }
+  ]
+}

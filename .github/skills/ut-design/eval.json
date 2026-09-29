@@ -1,0 +1,72 @@
+{
+  "skill": "ut-design",
+  "description": "Regression prompts for the ut-design skill (design/update a requirement-traceable unit test CSV).",
+  "evals": [
+    {
+      "id": "eval-001",
+      "prompt": "create the unit test design",
+      "context": ["docs/requirements.md"],
+      "expected_behavior": [
+        "Reads docs/requirements.md before writing any cases.",
+        "Creates or updates docs/ut-design/unit-test-design.csv with the required 9-column header.",
+        "Produces at least one case per functional requirement (FR1-FR6).",
+        "Runs the fix_csv.py validator against the saved file before reporting completion.",
+        "Reports the artifact path and case count instead of dumping the full CSV into chat."
+      ],
+      "should_not": [
+        "Invent numeric thresholds for FR5 that are not stated in the requirements.",
+        "Leave the saved CSV failing fix_csv.py --check-only."
+      ]
+    },
+    {
+      "id": "eval-002",
+      "prompt": "add a test case for when the boot_status field contains an unexpected numeric value instead of a string",
+      "context": ["docs/ut-design/unit-test-design.csv"],
+      "expected_behavior": [
+        "Appends a new row rather than rewriting unrelated existing rows.",
+        "Uses the next sequential UT-### id with no collision against existing ids.",
+        "Sets 'test case type' to a value from the allowed set (positive, negative, edge, boundary, exception, exhaustive).",
+        "Leaves 'actual output' blank."
+      ],
+      "should_not": [
+        "Duplicate an existing case for the same scenario.",
+        "Change unrelated existing rows."
+      ]
+    },
+    {
+      "id": "eval-003",
+      "prompt": "design test cases for the CPU/memory/storage threshold checks",
+      "context": ["docs/requirements.md"],
+      "expected_behavior": [
+        "Notices FR5's thresholds are left blank in the requirements.",
+        "Marks affected expected outputs as TBD with a comment naming the missing threshold/unit decision.",
+        "Still produces boundary-style cases (e.g. using the example values given in the requirements) where the input itself is unambiguous."
+      ],
+      "should_not": [
+        "Fabricate a specific percentage threshold that isn't in the requirements.",
+        "Mark a TBD case as automated: yes."
+      ]
+    },
+    {
+      "id": "eval-004",
+      "prompt": "this csv is failing to parse, fix it: docs/ut-design/unit-test-design.csv",
+      "expected_behavior": [
+        "Runs .github/skills/ut-design/scripts/fix_csv.py against the file.",
+        "Reports auto-fixed issues and any unresolved issues separately.",
+        "Re-validates with --check-only after fixing and confirms a clean result before finishing."
+      ],
+      "should_not": [
+        "Hand-edit rows that the script already fixes without re-validating.",
+        "Silently ignore an 'unresolved' warning from the script."
+      ]
+    },
+    {
+      "id": "eval-005",
+      "prompt": "save the test design to test_output/cases.csv instead",
+      "expected_behavior": [
+        "Honors the user-provided output path instead of the default docs/ut-design/ location.",
+        "Still applies the same 9-column contract and validation step at the new path."
+      ]
+    }
+  ]
+}
