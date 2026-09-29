@@ -16,7 +16,9 @@ sys.modules["fix_csv"] = fix_csv
 spec.loader.exec_module(fix_csv)
 
 
-VALID_ROW = ["UT-001", "boot_status_success", "desc", '{"boot_status":"SUCCESS"}', "positive", "PASS", "", "yes", "note"]
+VALID_ROW = [
+    "UT-001", "boot_status_success", "desc", '{"boot_status":"SUCCESS"}', "positive", "PASS", "", "yes", "note",
+]
 
 
 def write_csv(path: Path, header: list[str], rows: list[list[str]]) -> None:
