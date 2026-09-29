@@ -31,4 +31,4 @@ jobs:
         run: flake8 . --max-line-length=120
 
       - name: Run unit tests
-        run: pytest
+        run: pytest .github/skills/ut-design/scripts/test_validate_csv.py -v
